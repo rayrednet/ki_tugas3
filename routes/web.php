@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Autentikasi\ControllerAutentikasi;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -13,6 +14,15 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::group([
+    'prefix' => 'autentikasi',
+    'as' => 'autentikasi.',
+], function() {
+    Route::get('/', [ControllerAutentikasi::class, 'index'])->name('index');
+    Route::post('/login', [ControllerAutentikasi::class, 'login'])->name('login');
+    Route::post('/register', [ControllerAutentikasi::class, 'register'])->name('register');
+});
+
 Route::get('/', function () {
     return view('welcome');
-});
+})->name('welcome');
