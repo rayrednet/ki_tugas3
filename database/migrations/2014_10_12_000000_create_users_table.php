@@ -17,9 +17,11 @@ return new class extends Migration
             $table->string('password', 64);
             $table->string('nama', 64)->nullable();
             $table->string('email', 255)->nullable();
-            $table->date('tanggal_lahir')->nullable();
+            $table->string('tanggal_lahir')->nullable();
             $table->string('alamat')->nullable();
             $table->string('nomor_telepon')->nullable();
+            $table->string('enkripsi_digunakan')->nullable();
+            $table->string('iv')->nullable();
             $table->string('key_public', 4096);
             $table->string('key_private', 4096);
             $table->string('key_enkripsi', 4096);

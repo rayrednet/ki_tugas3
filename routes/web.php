@@ -28,6 +28,8 @@ Route::group(['middleware' => [
         'as' => 'profile.',
     ], function() {
         Route::get('/', [ControllerProfile::class, 'index'])->name('index');
+        Route::get('/edit', [ControllerProfile::class, 'edit'])->name('edit');
+        Route::patch('/', [ControllerProfile::class, 'update'])->name('update');
     });
 
     Route::group([
