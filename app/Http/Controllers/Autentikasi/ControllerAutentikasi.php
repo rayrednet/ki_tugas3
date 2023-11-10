@@ -48,7 +48,7 @@ class ControllerAutentikasi extends Controller
             ]);
         }
 
-        return redirect()->route('welcome');
+        return redirect()->route('profile.index');
     }
 
     public function logout(Request $request)

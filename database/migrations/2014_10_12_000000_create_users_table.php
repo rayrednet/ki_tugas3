@@ -20,6 +20,9 @@ return new class extends Migration
             $table->date('tanggal_lahir')->nullable();
             $table->string('alamat')->nullable();
             $table->string('nomor_telepon')->nullable();
+            $table->string('key_public', 4096);
+            $table->string('key_private', 4096);
+            $table->string('key_enkripsi', 4096);
         });
     }
 
