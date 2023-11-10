@@ -17,12 +17,13 @@
     </head>
 
     <body>
-        <div id="app" class="d-flex flex-row">
-            @include('components.sidebar.sidebar')
-            <div id="main" class="layout-navbar d-flex flex-column">
-                <div id="main-content" style="flex-grow: 1">
-                    <button class="btn btn-block btn-primary">TES</button>
-                    {{ $slot }}
+        <div id="app">
+            <div id="main" class="layout-navbar d-flex">
+                @include('components.sidebar.sidebar')
+                <div id="main-content" class="flex-fill">
+                    <div class="container">
+                        {{ $slot }}
+                    </div>
                 </div>
             </div>
         </div>

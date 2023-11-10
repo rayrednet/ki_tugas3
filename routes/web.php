@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Autentikasi\ControllerAutentikasi;
+use App\Http\Controllers\ControllerProfile;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,15 +15,39 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::group([
-    'prefix' => 'autentikasi',
-    'as' => 'autentikasi.',
-], function() {
-    Route::get('/', [ControllerAutentikasi::class, 'index'])->name('index');
-    Route::post('/login', [ControllerAutentikasi::class, 'login'])->name('login');
-    Route::post('/register', [ControllerAutentikasi::class, 'register'])->name('register');
+
+Route::group(['middleware' => [
+    'auth'
+]], function() {
+    Route::get('/', function () {
+        return redirect()->route('profile.index');
+    });
+
+    Route::group([
+        'prefix' => 'profile',
+        'as' => 'profile.',
+    ], function() {
+        Route::get('/', [ControllerProfile::class, 'index'])->name('index');
+    });
+
+    Route::group([
+        'prefix' => 'autentikasi',
+        'as' => 'autentikasi.',
+    ], function() {
+        Route::get('/logout', [ControllerAutentikasi::class, 'logout'])->name('logout');
+    });
 });
 
-Route::get('/', function () {
-    return view('welcome');
-})->name('welcome');
+
+Route::group(['middleware' => [
+    'guest'
+]], function() {
+    Route::group([
+        'prefix' => 'autentikasi',
+        'as' => 'autentikasi.',
+    ], function() {
+        Route::get('/', [ControllerAutentikasi::class, 'index'])->name('index');
+        Route::post('/register', [ControllerAutentikasi::class, 'register'])->name('register');
+        Route::post('/login', [ControllerAutentikasi::class, 'login'])->name('login');
+    });
+});

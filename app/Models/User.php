@@ -8,6 +8,10 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Support\Str;
+use phpseclib3\Crypt\AES;
+use phpseclib3\Crypt\Hash;
+use phpseclib3\Crypt\Random;
+use phpseclib3\Crypt\RSA;
 
 class User extends Authenticatable
 {
@@ -31,6 +35,9 @@ class User extends Authenticatable
         'tanggal_lahir',
         'alamat',
         'nomor_telepon',
+        'key_public',
+        'key_private',
+        'key_enkripsi',
     ];
 
     /**
@@ -54,10 +61,28 @@ class User extends Authenticatable
 
     public static function createUser(String $username, String $password) : User
     {
+        $hasher = new Hash('sha256');
+        $appKey = base64_decode(substr(getenv('APP_KEY'), 7)); // Menghapus 'base64:' dari awal string
+        $encryptor = new AES('cbc');
+        $encryptor->setKey($appKey);
+        $encryptor->setIV(substr($hasher->hash($appKey), 0, 16));
+
+        $privateKey = RSA::createKey();
+        $publicKey = $privateKey->getPublicKey();
+        $salt = Random::string(24);
+        $symmetricKey = $hasher->hash("{$password}.{$salt}");
+
+        $secureSymmetricKey = $encryptor->encrypt($symmetricKey);
+        $securePrivateKey = $encryptor->encrypt($privateKey->toString('PKCS8'));
+        $securePublicKey = $encryptor->encrypt($publicKey->toString('PKCS8'));
+
         $userBaru = new User([
             'id' => Str::uuid(),
             'username' => $username,
-            'password' => $password
+            'password' => $password,
+            'key_enkripsi' => bin2hex($secureSymmetricKey),
+            'key_public' => bin2hex($securePrivateKey),
+            'key_private' => bin2hex($securePublicKey),
         ]);
 
         return $userBaru;
