@@ -35,6 +35,8 @@ class User extends Authenticatable
         'tanggal_lahir',
         'alamat',
         'nomor_telepon',
+        'enkripsi_digunakan',
+        'iv',
         'key_public',
         'key_private',
         'key_enkripsi',
@@ -56,7 +58,6 @@ class User extends Authenticatable
      */
     protected $casts = [
         'password' => 'hashed',
-        'tanggal_lahir' => 'date',
     ];
 
     public static function createUser(String $username, String $password) : User
@@ -86,5 +87,34 @@ class User extends Authenticatable
         ]);
 
         return $userBaru;
+    }
+
+    public function setProfile(
+        String $enkripsiDigunakan, String $iv, String $nama, String $email,
+        String $tanggalLahir, String $alamat, String $nomorTelepon
+    ) {
+        $this->enkripsi_digunakan = $enkripsiDigunakan;
+        $this->iv = bin2hex($iv);
+        $this->nama = $nama;
+        $this->email = $email;
+        $this->tanggal_lahir = $tanggalLahir;
+        $this->alamat = $alamat;
+        $this->nomor_telepon = $nomorTelepon;
+    }
+
+    public function getKeyEnkripsi() : String
+    {
+        $appKey = base64_decode(substr(getenv('APP_KEY'), 7)); // Menghapus 'base64:' dari awal string
+        $hasher = new Hash('sha256');
+        $encryptor = new AES('cbc');
+        $encryptor->setKey($appKey);
+        $encryptor->setIV(substr($hasher->hash($appKey), 0, 16));
+
+        return $encryptor->decrypt(hex2bin($this->key_enkripsi));
+    }
+
+    public function getIV() : String
+    {
+        return hex2bin($this->iv);
     }
 }
