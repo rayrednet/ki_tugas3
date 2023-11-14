@@ -5,11 +5,13 @@
             <span class="fs-5 d-none d-sm-inline">Menu KI Tugas 2</span>
         </a>
         <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
-            <x-sidebar-item href="#" title="Profile" icon="person-circle">
+            <x-sidebar-item href="{{ route('profile.index') }}" title="Profile" icon="person-circle">
             </x-sidebar-item>
             <x-sidebar-item href="#" title="Bank Data" icon="people">
             </x-sidebar-item>
-            <x-sidebar-item href="#" title="Bank File" icon="file-lock">
+            <x-sidebar-item href="{{ route('file.index') }}" title="Bank File" icon="file-lock">
+            </x-sidebar-item>
+            <x-sidebar-item href="#" title="Share Key" icon="share">
             </x-sidebar-item>
             <x-sidebar-item href="{{ route('autentikasi.logout') }}" title="Logout" icon="door-open">
             </x-sidebar-item>
