@@ -3,7 +3,10 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -12,12 +15,14 @@ use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Hash;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RSA;
+use phpseclib3\Crypt\RSA\PublicKey;
 
 class User extends Authenticatable
 {
     use HasApiTokens, HasFactory, Notifiable;
 
-    protected $table = "users";
+    protected $table = 'users';
+    protected $keyType = 'string';
 
     public $timestamps = false;
 
@@ -113,8 +118,49 @@ class User extends Authenticatable
         return $encryptor->decrypt(hex2bin($this->key_enkripsi));
     }
 
+    public function getPublicKey() : String
+    {
+        $appKey = base64_decode(substr(getenv('APP_KEY'), 7)); // Menghapus 'base64:' dari awal string
+        $hasher = new Hash('sha256');
+        $encryptor = new AES('cbc');
+        $encryptor->setKey($appKey);
+        $encryptor->setIV(substr($hasher->hash($appKey), 0, 16));
+
+        return $encryptor->decrypt(hex2bin($this->key_public));
+    }
+
+    public function getPublicEncryptor() : PublicKey
+    {
+        $publicKey = $this->getPublicKey();
+        $encryptor = RSA::load($publicKey);
+
+        if (!($encryptor instanceof PublicKey)) {
+            throw new Exception('Error public key...');
+        }
+        return $encryptor;
+    }
+
+    public function kirimKeyEnkripsiPada(User $tujuan) : String
+    {
+        $keySendiri = $this->key_enkripsi;
+        $encryptor = RSA::load($tujuan->getPublicKey());
+
+        if (!($encryptor instanceof PublicKey)) {
+            throw new Exception('Error key tidak sesuai');
+        }
+
+        $encryptedKeySendiri = bin2hex($encryptor->encrypt($keySendiri));
+
+        return $encryptedKeySendiri;
+    }
+
     public function getIV() : String
     {
         return hex2bin($this->iv);
+    }
+
+    public function file_user() : HasMany
+    {
+        return $this->hasMany('App\Models\FileUser', 'user_id', 'id');
     }
 }

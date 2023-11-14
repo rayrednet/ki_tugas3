@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Autentikasi\ControllerAutentikasi;
+use App\Http\Controllers\ControllerFile;
 use App\Http\Controllers\ControllerProfile;
 use Illuminate\Support\Facades\Route;
 
@@ -30,6 +31,17 @@ Route::group(['middleware' => [
         Route::get('/', [ControllerProfile::class, 'index'])->name('index');
         Route::get('/edit', [ControllerProfile::class, 'edit'])->name('edit');
         Route::patch('/', [ControllerProfile::class, 'update'])->name('update');
+    });
+
+    Route::group([
+        'prefix' => 'file',
+        'as' => 'file.',
+    ], function() {
+        Route::get('/', [ControllerFile::class, 'index'])->name('index');
+        Route::get('/create', [ControllerFile::class, 'create'])->name('create');
+        Route::get('/{id}', [ControllerFile::class, 'show'])->name('show');
+        Route::post('/store', [ControllerFile::class, 'store'])->name('store');
+        Route::delete('/{id}', [ControllerFile::class, 'delete'])->name('delete');
     });
 
     Route::group([

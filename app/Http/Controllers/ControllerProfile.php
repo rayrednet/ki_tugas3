@@ -24,35 +24,37 @@ class ControllerProfile extends Controller
         $encryptedAlamat = $user->alamat;
         $encryptedNomorTelepon = $user->nomor_telepon;
         $encryptionUsed = $user->enkripsi_digunakan;
-        $iv = $user->iv;
 
         $profile = [
-            'nama' => '-- Belum Diisi --',
-            'email' => '-- Belum Diisi --',
-            'tanggal_lahir' => '-- Belum Diisi --',
-            'alamat' => '-- Belum Diisi --',
-            'nomor_telepon' => '-- Belum Diisi --',
+            'ID' => str($user->id),
+            'Nama' => '-- Belum Diisi --',
+            'Email' => '-- Belum Diisi --',
+            'Tanggal lahir' => '-- Belum Diisi --',
+            'Alamat' => '-- Belum Diisi --',
+            'Nomor telepon' => '-- Belum Diisi --',
         ];
 
         if ($encryptionUsed != null) {
             try {
                 $encryptor = new Encryptor($encryptionUsed, $user->getKeyEnkripsi(), $user->getIV());
                 $profile = [
-                    'nama' => $encryptor->decrypt(hex2bin($encryptedNama)),
-                    'email' => $encryptor->decrypt(hex2bin($encryptedEmail)),
-                    'tanggal_lahir' => $encryptor->decrypt(hex2bin($encryptedTanggalLahir)),
-                    'alamat' => $encryptor->decrypt(hex2bin($encryptedAlamat)),
-                    'nomor_telepon' => $encryptor->decrypt(hex2bin($encryptedNomorTelepon)),
+                    'ID' => str($user->id),
+                    'Nama' => $encryptor->decrypt(hex2bin($encryptedNama)),
+                    'Email' => $encryptor->decrypt(hex2bin($encryptedEmail)),
+                    'Tanggal lahir' => $encryptor->decrypt(hex2bin($encryptedTanggalLahir)),
+                    'Alamat' => $encryptor->decrypt(hex2bin($encryptedAlamat)),
+                    'Nomor telepon' => $encryptor->decrypt(hex2bin($encryptedNomorTelepon)),
                 ];
 
             }
             catch(Exception $e) {
                 $profile = [
-                    'nama' => '-- Gagal Dekripsi --',
-                    'email' => '-- Gagal Dekripsi --',
-                    'tanggal_lahir' => '-- Gagal Dekripsi --',
-                    'alamat' => '-- Gagal Dekripsi --',
-                    'nomor_telepon' => '-- Gagal Dekripsi --',
+                    'ID' => str($user->id),
+                    'Nama' => '-- Gagal Dekripsi --',
+                    'Email' => '-- Gagal Dekripsi --',
+                    'Tanggal lahir' => '-- Gagal Dekripsi --',
+                    'Alamat' => '-- Gagal Dekripsi --',
+                    'Nomor telepon' => '-- Gagal Dekripsi --',
                 ];
             }
         }
@@ -75,7 +77,7 @@ class ControllerProfile extends Controller
         $encryptedAlamat = $user->alamat;
         $encryptedNomorTelepon = $user->nomor_telepon;
         $encryptionUsed = $user->enkripsi_digunakan;
-        $iv = $user->iv;
+        $iv = $user->getIV();
 
         $profile = [
             'nama' => '',
