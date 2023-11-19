@@ -163,4 +163,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\FileUser', 'user_id', 'id');
     }
+
+    public function informasi_user() : HasMany
+    {
+        return $this->hasMany('App\Models\InformasiUser', 'user_id', 'id');
+    }
 }
