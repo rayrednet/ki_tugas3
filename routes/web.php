@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Autentikasi\ControllerAutentikasi;
 use App\Http\Controllers\ControllerFile;
+use App\Http\Controllers\ControllerInformasiUser;
 use App\Http\Controllers\ControllerProfile;
 use Illuminate\Support\Facades\Route;
 
@@ -31,6 +32,18 @@ Route::group(['middleware' => [
         Route::get('/', [ControllerProfile::class, 'index'])->name('index');
         Route::get('/edit', [ControllerProfile::class, 'edit'])->name('edit');
         Route::patch('/', [ControllerProfile::class, 'update'])->name('update');
+    });
+
+    Route::group([
+        'prefix' => 'informasi',
+        'as' => 'informasi.',
+    ], function() {
+        Route::get('/', [ControllerInformasiUser::class, 'index'])->name('index');
+        Route::get('/create', [ControllerInformasiUser::class, 'create'])->name('create');
+        Route::post('/', [ControllerInformasiUser::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [ControllerInformasiUser::class, 'edit'])->name('edit');
+        Route::patch('/', [ControllerInformasiUser::class, 'update'])->name('update');
+        Route::delete('/{id}', [ControllerInformasiUser::class, 'delete'])->name('delete');
     });
 
     Route::group([

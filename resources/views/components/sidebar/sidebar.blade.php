@@ -7,7 +7,7 @@
         <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
             <x-sidebar-item href="{{ route('profile.index') }}" title="Profile" icon="person-circle">
             </x-sidebar-item>
-            <x-sidebar-item href="#" title="Bank Data" icon="people">
+            <x-sidebar-item href="{{ route('informasi.index') }}" title="Bank Data" icon="people">
             </x-sidebar-item>
             <x-sidebar-item href="{{ route('file.index') }}" title="Bank File" icon="file-lock">
             </x-sidebar-item>
