@@ -15,6 +15,7 @@ use phpseclib3\Crypt\AES;
 use phpseclib3\Crypt\Hash;
 use phpseclib3\Crypt\Random;
 use phpseclib3\Crypt\RSA;
+use phpseclib3\Crypt\RSA\PrivateKey;
 use phpseclib3\Crypt\RSA\PublicKey;
 
 class User extends Authenticatable
@@ -79,16 +80,16 @@ class User extends Authenticatable
         $symmetricKey = $hasher->hash("{$password}.{$salt}");
 
         $secureSymmetricKey = $encryptor->encrypt($symmetricKey);
-        $securePrivateKey = $encryptor->encrypt($privateKey->toString('PKCS8'));
         $securePublicKey = $encryptor->encrypt($publicKey->toString('PKCS8'));
+        $securePrivateKey = $encryptor->encrypt($privateKey->toString('PKCS8'));
 
         $userBaru = new User([
             'id' => Str::uuid(),
             'username' => $username,
             'password' => $password,
             'key_enkripsi' => bin2hex($secureSymmetricKey),
-            'key_public' => bin2hex($securePrivateKey),
-            'key_private' => bin2hex($securePublicKey),
+            'key_public' => bin2hex($securePublicKey),
+            'key_private' => bin2hex($securePrivateKey),
         ]);
 
         return $userBaru;
@@ -129,13 +130,33 @@ class User extends Authenticatable
         return $encryptor->decrypt(hex2bin($this->key_public));
     }
 
+    public function getPrivateKey() : String
+    {
+        $appKey = base64_decode(substr(getenv('APP_KEY'), 7)); // Menghapus 'base64:' dari awal string
+        $hasher = new Hash('sha256');
+        $encryptor = new AES('cbc');
+        $encryptor->setKey($appKey);
+        $encryptor->setIV(substr($hasher->hash($appKey), 0, 16));
+
+        return $encryptor->decrypt(hex2bin($this->key_private));
+    }
+
     public function getPublicEncryptor() : PublicKey
     {
         $publicKey = $this->getPublicKey();
         $encryptor = RSA::load($publicKey);
-
         if (!($encryptor instanceof PublicKey)) {
             throw new Exception('Error public key...');
+        }
+        return $encryptor;
+    }
+
+    public function getPrivateEncryptor() : PrivateKey
+    {
+        $publicKey = $this->getPrivateKey();
+        $encryptor = RSA::load($publicKey);
+        if (!($encryptor instanceof PrivateKey)) {
+            throw new Exception('Error private key...');
         }
         return $encryptor;
     }
@@ -143,14 +164,13 @@ class User extends Authenticatable
     public function kirimKeyEnkripsiPada(User $tujuan) : String
     {
         $keySendiri = $this->key_enkripsi;
-        $encryptor = RSA::load($tujuan->getPublicKey());
+        $encryptor = $tujuan->getPublicEncryptor();
 
         if (!($encryptor instanceof PublicKey)) {
             throw new Exception('Error key tidak sesuai');
         }
 
         $encryptedKeySendiri = bin2hex($encryptor->encrypt($keySendiri));
-
         return $encryptedKeySendiri;
     }
 
