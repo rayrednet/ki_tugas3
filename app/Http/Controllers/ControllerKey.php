@@ -31,13 +31,14 @@ class ControllerKey extends Controller
             return redirect()->back()->withErrors([
                 'error' => 'User tujuan tidak ada'
             ]);
+        } else {
+            $usernameTujuan = $userTujuan->username;
         }
 
         $keyEnkripsi = $user->kirimKeyEnkripsiPada($userTujuan);
         return view('share.index', [
-            'key' => $keyEnkripsi
+            'key' => $keyEnkripsi,
+            'usernameTujuan' => $usernameTujuan
         ]);
     }
 }
-
-?>
