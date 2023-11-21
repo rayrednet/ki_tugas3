@@ -44,7 +44,7 @@
                     <input type="text" id="user_id" name="user_id" class="form-control" placeholder="Tuliskan ID user yang akan anda berikan key anda..." required />
                 </div>
                 @if(isset($usernameTujuan))
-                <p>Username Penerima: {{ $usernameTujuan }}</p>
+                <p>Username Tujuan: {{ $usernameTujuan }}</p>
                 @endif
                 <div class="justify-content-center d-flex">
                     <button type="submit" class="btn btn-primary btn-block mb-4 px-4">Enkripsi Key!</button>
