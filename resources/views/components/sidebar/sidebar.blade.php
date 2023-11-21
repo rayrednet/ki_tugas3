@@ -11,7 +11,11 @@
             </x-sidebar-item>
             <x-sidebar-item href="{{ route('file.index') }}" title="Bank File" icon="file-lock">
             </x-sidebar-item>
-            <x-sidebar-item href="#" title="Share Key" icon="share">
+            <x-sidebar-item href="{{ route('share.show') }}" title="Share Key" icon="share">
+            </x-sidebar-item>
+            <x-sidebar-item href="{{ route('share.informasi.index') }}" title="Informasi User Lain" icon="share">
+            </x-sidebar-item>
+            <x-sidebar-item href="{{ route('share.file.index') }}" title="File User Lain" icon="share">
             </x-sidebar-item>
             <x-sidebar-item href="{{ route('autentikasi.logout') }}" title="Logout" icon="door-open">
             </x-sidebar-item>

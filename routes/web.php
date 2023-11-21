@@ -3,7 +3,10 @@
 use App\Http\Controllers\Autentikasi\ControllerAutentikasi;
 use App\Http\Controllers\ControllerFile;
 use App\Http\Controllers\ControllerInformasiUser;
+use App\Http\Controllers\ControllerKey;
 use App\Http\Controllers\ControllerProfile;
+use App\Http\Controllers\ControllerShareFileUser;
+use App\Http\Controllers\ControllerShareInformasiUser;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -55,6 +58,30 @@ Route::group(['middleware' => [
         Route::get('/{id}', [ControllerFile::class, 'show'])->name('show');
         Route::post('/store', [ControllerFile::class, 'store'])->name('store');
         Route::delete('/{id}', [ControllerFile::class, 'delete'])->name('delete');
+    });
+
+    Route::group([
+        'prefix' => 'share',
+        'as' => 'share.',
+    ], function() {
+        Route::get('/', [ControllerKey::class, 'show'])->name('show');
+
+        Route::group([
+            'prefix' => 'informasi',
+            'as' => 'informasi.'
+        ], function() {
+            Route::get('/', [ControllerShareInformasiUser::class, 'index'])->name('index');
+            Route::post('/', [ControllerShareInformasiUser::class, 'show'])->name('show');
+        });
+
+        Route::group([
+            'prefix' => 'file',
+            'as' => 'file.'
+        ], function() {
+            Route::get('/', [ControllerShareFileUser::class, 'index'])->name('index');
+            Route::post('/', [ControllerShareFileUser::class, 'show'])->name('show');
+            Route::post('/download', [ControllerShareFileUser::class, 'download'])->name('download');
+        });
     });
 
     Route::group([
