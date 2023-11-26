@@ -20,13 +20,16 @@
                         <td>{{ $user->address }}</td>
                         <td class="d-flex">
                             <form class="mx-1" action="{{ route('share.decline') }}" method="POST">
+                                @csrf
                                 <input type="text" name="username" value="{{ $user->username }}" hidden>
                                 <button type="submit" class="btn btn-danger btn-request">
                                     <i class="bi-x-lg"></i>
                                 </button>
                             </form>
-                            <form class="mx-1" action="">
-                                <button type="button" class="btn btn-primary btn-request" data-bs-toggle="modal" data-bs-target="#modal" data-username="{{ json_encode(['username' => $user->username]) }}">
+                            <form class="mx-1" action="{{ route('share.accept') }}" method="POST">
+                                @csrf
+                                <input type="text" name="username" value="{{ $user->username }}" hidden>
+                                <button type="submit" class="btn btn-primary btn-request">
                                     <i class="bi-check-lg"></i>
                                 </button>
                             </form>

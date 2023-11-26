@@ -38,9 +38,9 @@ class ControllerListKeySharing extends Controller
          */
         $user = Auth::user();
 
-        $idTujuan = $request->query('user_id');
+        $idTujuan = $request->query('username');
         if ($idTujuan == null) {
-            return view('share.listrequest', [
+            return view('share.index', [
                 'key' => null
             ]);
         }
@@ -54,17 +54,17 @@ class ControllerListKeySharing extends Controller
                 'error' => 'User tujuan tidak ada'
             ]);
         } else {
-            $usernameTujuan = $userTujuan->username;
+            $user_lain = $userTujuan->username;
         }
 
         $keyEnkripsi = $user->kirimKeyEnkripsiPada($userTujuan);
-        return view('share.listrequest', [
+        return view('share.sharekey', [
             'key' => $keyEnkripsi,
-            'usernameTujuan' => $usernameTujuan
+            'user_lain' => $user_lain
         ]);
     }
 
-    public static function decline () {
+    public static function decline (Request $request) {
          /**
          * @var User
          */
@@ -72,7 +72,10 @@ class ControllerListKeySharing extends Controller
 
         $deleteData = $request->input('username');
 
-        KeySharing::find()->where('id', '=', $deleteData)->delete();
+        DB::table('key_request')
+            ->join('users', 'key_request.user_id_tujuan', '=', 'users.id')
+            ->where('users.username', '=', $deleteData)
+            ->delete();
         
         $permintaan = KeySharing::query()->where('user_id_tujuan', '=', $user->id)->get()->toArray();
         
