@@ -18,6 +18,7 @@
                             <div class="card">
                                 <div class="card-body">
                                     <h5 class="card-title mb-3 text-center">{{ $file['nama_file'] }}</h5>
+                                    {{-- <img src="{{ $file['nama_file_fisik'] }}" alt="{{ $file['nama_file'] }}"> --}}
                                     <div class="d-flex justify-content-around">
                                         <form method="get" action="{{ route('file.show', ['id' => $file['id']]) }}">
                                             @csrf

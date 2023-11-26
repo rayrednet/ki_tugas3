@@ -29,9 +29,9 @@ class ControllerProfile extends Controller
             'ID' => str($user->id),
             'Nama' => '-- Belum Diisi --',
             'Email' => '-- Belum Diisi --',
-            'Tanggal lahir' => '-- Belum Diisi --',
+            'Tanggal Lahir' => '-- Belum Diisi --',
             'Alamat' => '-- Belum Diisi --',
-            'Nomor telepon' => '-- Belum Diisi --',
+            'Nomor Telepon (WhatsApp)' => '-- Belum Diisi --',
         ];
 
         if ($encryptionUsed != null) {
@@ -41,9 +41,9 @@ class ControllerProfile extends Controller
                     'ID' => str($user->id),
                     'Nama' => $encryptor->decrypt(hex2bin($encryptedNama)),
                     'Email' => $encryptor->decrypt(hex2bin($encryptedEmail)),
-                    'Tanggal lahir' => $encryptor->decrypt(hex2bin($encryptedTanggalLahir)),
+                    'Tanggal Lahir' => $encryptor->decrypt(hex2bin($encryptedTanggalLahir)),
                     'Alamat' => $encryptor->decrypt(hex2bin($encryptedAlamat)),
-                    'Nomor telepon' => $encryptor->decrypt(hex2bin($encryptedNomorTelepon)),
+                    'Nomor Telepon (WhatsApp)' => $encryptor->decrypt(hex2bin($encryptedNomorTelepon)),
                 ];
 
             }
@@ -52,9 +52,9 @@ class ControllerProfile extends Controller
                     'ID' => str($user->id),
                     'Nama' => '-- Gagal Dekripsi --',
                     'Email' => '-- Gagal Dekripsi --',
-                    'Tanggal lahir' => '-- Gagal Dekripsi --',
+                    'Tanggal Lahir' => '-- Gagal Dekripsi --',
                     'Alamat' => '-- Gagal Dekripsi --',
-                    'Nomor telepon' => '-- Gagal Dekripsi --',
+                    'Nomor Telepon (WhatsApp)' => '-- Gagal Dekripsi --',
                 ];
             }
         }

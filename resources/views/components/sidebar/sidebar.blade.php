@@ -1,4 +1,3 @@
-
 <div class="col-auto col-md-3 col-xl-2 px-sm-2 px-0 bg-dark">
     <div class="d-flex flex-column align-items-center align-items-sm-start px-3 pt-2 text-white min-vh-100">
         <a href="/" class="d-flex align-items-center pb-3 mb-md-0 me-md-auto text-white text-decoration-none">
@@ -11,14 +10,21 @@
             </x-sidebar-item>
             <x-sidebar-item href="{{ route('file.index') }}" title="Bank File" icon="file-lock">
             </x-sidebar-item>
+            <br/><br/>
+            {{-- <x-sidebar-item href="{{ route('share.request') }}" title="Request Data" icon="share"> --}}
+            {{-- </x-sidebar-item> --}}
             <x-sidebar-item href="{{ route('share.show') }}" title="Share Key" icon="share">
             </x-sidebar-item>
             <x-sidebar-item href="{{ route('share.informasi.index') }}" title="Informasi User Lain" icon="share">
             </x-sidebar-item>
             <x-sidebar-item href="{{ route('share.file.index') }}" title="File User Lain" icon="share">
-            </x-sidebar-item>
-            <x-sidebar-item href="{{ route('autentikasi.logout') }}" title="Logout" icon="door-open">
-            </x-sidebar-item>
+            </x-sidebar-item>            
         </ul>
+        <div class="fixed bottom-0 w-full flex justify-center">
+            <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">
+                <x-sidebar-item href="{{ route('autentikasi.logout') }}" title="Logout" icon="door-open">
+                </x-sidebar-item>
+            </ul>
+        </div>
     </div>
 </div>

@@ -65,6 +65,7 @@ Route::group(['middleware' => [
         'as' => 'share.',
     ], function() {
         Route::get('/', [ControllerKey::class, 'show'])->name('show');
+        // Route::get('/', [ControllerKey::class, 'request'])->name('request');
 
         Route::group([
             'prefix' => 'informasi',
