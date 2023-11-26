@@ -188,4 +188,9 @@ class User extends Authenticatable
     {
         return $this->hasMany('App\Models\InformasiUser', 'user_id', 'id');
     }
+
+    public function key_sharing() : HasMany
+    {
+        return $this->hasMany('App\Models\KeySharing', 'user_tujuan_id', 'id');
+    }
 }
