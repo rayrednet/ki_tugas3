@@ -16,12 +16,15 @@ class ControllerListKeySharing extends Controller
         /**
          * @var User
          */
+        $user = Auth::user();
 
         $permintaan = DB::table('key_request')
             ->join('users', 'key_request.user_id', '=', 'users.id')
             ->select('users.username', 'key_request.contact', 'key_request.address')
-            // ->where('key_request.contact', '', 'users.username')
+            ->where('users.id', '<>', $user->id)
             ->get();
+
+        // dd($permintaan);
 
         $idTujuan = $request->query('user_id');
         if ($idTujuan == null) {
@@ -49,10 +52,10 @@ class ControllerListKeySharing extends Controller
         //     ->where('user_id', '=', $kontakTujuan)
         //     ->delete();
 
-        // DB::table('key_request')
-        //     ->join('users', 'key_request.user_id_tujuan', '=', 'users.id')
-        //     ->where('users.username', '=', $passData)
-        //     ->delete();
+        DB::table('key_request')
+            ->join('users', 'key_request.user_id_tujuan', '=', 'users.id')
+            ->where('users.username', '=', $passData)
+            ->delete();
 
         return view('share.sharekey', [
             'key' => $user->kirimKeyEnkripsiPada($userTujuan),
