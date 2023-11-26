@@ -24,11 +24,6 @@ class ControllerListKeySharing extends Controller
             ->where('users.id', '<>', $user->id)
             ->get();
 
-        // dd($permintaan);
-
-            // ->where('key_request.contact', '', 'users.username')
-            ->get();
-
 
         $idTujuan = $request->query('user_id');
         if ($idTujuan == null) {
