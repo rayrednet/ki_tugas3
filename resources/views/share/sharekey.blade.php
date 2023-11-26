@@ -63,14 +63,14 @@
         function shareViaEmail(address) {
             var key = document.getElementById("keyText").innerText;
             var emailAddress = address;
-            var mailtoUrl = "mailto:" + emailAddress + "?subject=Sharing Key&body=" + encodeURIComponent("Your custom message: " + key);
+            var mailtoUrl = "mailto:" + emailAddress + "?subject=Sharing Key&body=" + encodeURIComponent(key);
             window.location.href = mailtoUrl;
         }
 
         function shareViaTelegram(address) {
             var key = document.getElementById("keyText").innerText;
             var telegramID = address;
-            var telegramUrl = "https://t.me/" + telegramID + "?text=" + encodeURIComponent("Your custom message: " + key);
+            var telegramUrl = "https://t.me/share/url?url=" + encodeURIComponent(location.href) + "&text=" + encodeURIComponent(key); // Ganti `location.href` dengan URL yang ingin Anda bagikan
             window.open(telegramUrl, '_blank');
         }
 
