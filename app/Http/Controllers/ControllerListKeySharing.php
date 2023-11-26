@@ -18,7 +18,7 @@ class ControllerListKeySharing extends Controller
          */
 
         $permintaan = DB::table('key_request')
-            ->join('users', 'key_request.user_id_tujuan', '=', 'users.id')
+            ->join('users', 'key_request.user_id', '=', 'users.id')
             ->select('users.username', 'key_request.contact', 'key_request.address')
             ->get();
 
@@ -38,29 +38,24 @@ class ControllerListKeySharing extends Controller
          */
         $user = Auth::user();
 
-        $idTujuan = $request->query('username');
-        if ($idTujuan == null) {
-            return view('share.index', [
-                'key' => null
-            ]);
-        }
+        $passData = $request->input('username');
 
-        /**
-         * @var User|null
-         */
-        $userTujuan = User::query()->where('id', '=', $idTujuan)->first();
-        if ($userTujuan === null) {
-            return redirect()->back()->withErrors([
-                'error' => 'User tujuan tidak ada'
-            ]);
-        } else {
-            $user_lain = $userTujuan->username;
-        }
+        $userTujuan = User::query()->where('username', '=', $passData)->first();
+        $kontakTujuan = KeySharing::query()->where('user_id', '=', $userTujuan->id)->first();
+        $daftarKontak = $kontakTujuan->toArray();
 
-        $keyEnkripsi = $user->kirimKeyEnkripsiPada($userTujuan);
+        // DB::table('key_request')
+        //     ->where('user_id', '=', $kontakTujuan)
+        //     ->delete();
+
+        // DB::table('key_request')
+        //     ->join('users', 'key_request.user_id_tujuan', '=', 'users.id')
+        //     ->where('users.username', '=', $passData)
+        //     ->delete();
+
         return view('share.sharekey', [
-            'key' => $keyEnkripsi,
-            'user_lain' => $user_lain
+            'key' => $user->kirimKeyEnkripsiPada($userTujuan),
+            'daftar_kontak' => $daftarKontak,
         ]);
     }
 
