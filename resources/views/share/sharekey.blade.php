@@ -9,11 +9,12 @@
                 <p id="keyText" class="text-break my-1 fs-6">{{ $key }}</p>
                 <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="copyToClipboard()">Copy Key</button>
                 @if($daftar_kontak["contact"] == "whatsapp")
-                    <button onclick="shareViaWhatsApp({{ $daftar_kontak["address"] }})" class="btn btn-success btn-sm mt-2">WhatsApp</button>
+                    <button onclick="shareViaWhatsApp('{{ $daftar_kontak["address"] }}')" class="btn btn-success btn-sm mt-2">WhatsApp</button>
                 @elseif ($daftar_kontak["contact"] == "email")
-                    <button onclick="shareViaEmail({{ $daftar_kontak["address"] }})" class="btn btn-danger btn-sm mt-2">Email</button>
+                    <button onclick="shareViaEmail('{{ $daftar_kontak["address"] }}')" class="btn btn-danger btn-sm mt-2">Email</button>
                 @elseif ($daftar_kontak["contact"] == "telegram")
-                    <button onclick="shareViaTelegram({{ $daftar_kontak["address"] }})" class="btn btn-primary btn-sm mt-2">Telegram</button>
+                    <button onclick="shareViaTelegram('{{ $daftar_kontak["address"] }}')" class="btn btn-primary btn-sm mt-2">Telegram</button>
+
                 @endif
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
@@ -70,7 +71,7 @@
         function shareViaTelegram(address) {
             var key = document.getElementById("keyText").innerText;
             var telegramID = address;
-            var telegramUrl = "https://t.me/share/url?url=" + encodeURIComponent(location.href) + "&text=" + encodeURIComponent(key); // Ganti `location.href` dengan URL yang ingin Anda bagikan
+            var telegramUrl = "https://t.me/" + telegramID + "?text=" + encodeURIComponent(key); // Ganti `location.href` dengan URL yang ingin Anda bagikan
             window.open(telegramUrl, '_blank');
         }
 
