@@ -8,26 +8,13 @@
                 <strong>Key anda!</strong>
                 <p id="keyText" class="text-break my-1 fs-6">{{ $key }}</p>
                 <button type="button" class="btn btn-secondary btn-sm mt-2" onclick="copyToClipboard()">Copy Key</button>
-                <!-- Modal Share Key -->
-                <div class="modal fade" id="shareKeyModal" tabindex="-1" aria-labelledby="shareKeyModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                        <div class="modal-content">
-                            <div class="modal-header">
-                                <h5 class="modal-title" id="shareKeyModalLabel">Share Key</h5>
-                                <button type="button" class="btn-close me-2 mt-1" data-bs-dismiss="modal" aria-label="Close"></button>
-                            </div>
-                            <div class="modal-body">
-                                <button onclick="shareViaWhatsApp()" class="btn btn-success btn-sm mt-2">WhatsApp</button>
-                                <button onclick="shareViaEmail()" class="btn btn-danger btn-sm mt-2">Email</button>
-                                <button onclick="shareViaTwitter()" class="btn btn-dark btn-sm mt-2">Twitter</button>
-                                <button onclick="shareViaTelegram()" class="btn btn-primary btn-sm mt-2">Telegram</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <button type="button" class="btn btn-success btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#shareKeyModal">
-                    Share Key
-                </button>
+                @if($daftar_kontak["contact"] == "whatsapp")
+                    <button onclick="shareViaWhatsApp({{ $daftar_kontak["address"] }})" class="btn btn-success btn-sm mt-2">WhatsApp</button>
+                @elseif ($daftar_kontak["contact"] == "email")
+                    <button onclick="shareViaEmail({{ $daftar_kontak["address"] }})" class="btn btn-danger btn-sm mt-2">Email</button>
+                @elseif ($daftar_kontak["contact"] == "telegram")
+                    <button onclick="shareViaTelegram({{ $daftar_kontak["address"] }})" class="btn btn-primary btn-sm mt-2">Telegram</button>
+                @endif
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
             @endif
@@ -39,16 +26,6 @@
                     <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
                 @endif
-                <div class="form-outline mb-4">
-                    <label class="form-label" for="nama">ID User Tujuan Enkripsi</label>
-                    <input type="text" id="user_id" name="user_id" class="form-control" placeholder="Tuliskan ID user yang akan anda berikan key anda..." required />
-                </div>
-                @if(isset($usernameTujuan))
-                <p>Username Tujuan: {{ $usernameTujuan }}</p>
-                @endif
-                <div class="justify-content-center d-flex">
-                    <button type="submit" class="btn btn-primary btn-block mb-4 px-4">Enkripsi Key!</button>
-                </div>
             </form>
         </div>
     </div>
@@ -76,22 +53,24 @@
             document.body.removeChild(textArea);
         }
 
-        function shareViaWhatsApp() {
+        function shareViaWhatsApp(address) {
             var key = document.getElementById("keyText").innerText;
-            var phoneNumber = "6285101339177"; 
+            var phoneNumber = address; 
             var whatsappUrl = "https://wa.me/" + phoneNumber + "?text=" + encodeURIComponent("Your custom message: " + key);
             window.open(whatsappUrl, '_blank');
         }
 
-        function shareViaEmail() {
+        function shareViaEmail(address) {
             var key = document.getElementById("keyText").innerText;
-            var mailtoUrl = "mailto:?subject=Sharing Key&body=" + encodeURIComponent(key);
+            var emailAddress = address;
+            var mailtoUrl = "mailto:" + emailAddress + "?subject=Sharing Key&body=" + encodeURIComponent("Your custom message: " + key);
             window.location.href = mailtoUrl;
         }
 
-        function shareViaTelegram() {
+        function shareViaTelegram(address) {
             var key = document.getElementById("keyText").innerText;
-            var telegramUrl = "https://t.me/share/url?url=" + encodeURIComponent(location.href) + "&text=" + encodeURIComponent(key); // Ganti `location.href` dengan URL yang ingin Anda bagikan
+            var telegramID = address;
+            var telegramUrl = "https://t.me/" + telegramID + "?text=" + encodeURIComponent("Your custom message: " + key);
             window.open(telegramUrl, '_blank');
         }
 
