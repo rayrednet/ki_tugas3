@@ -4,6 +4,7 @@ use App\Http\Controllers\Autentikasi\ControllerAutentikasi;
 use App\Http\Controllers\ControllerFile;
 use App\Http\Controllers\ControllerInformasiUser;
 use App\Http\Controllers\ControllerKey;
+use App\Http\Controllers\ControllerListKeySharing;
 use App\Http\Controllers\ControllerProfile;
 use App\Http\Controllers\ControllerShareFileUser;
 use App\Http\Controllers\ControllerShareInformasiUser;
@@ -64,8 +65,11 @@ Route::group(['middleware' => [
         'prefix' => 'share',
         'as' => 'share.',
     ], function() {
-        Route::get('/', [ControllerKey::class, 'show'])->name('show');
-        // Route::get('/', [ControllerKey::class, 'request'])->name('request');
+        Route::get('/', [ControllerKey::class, 'index'])->name('index');
+        Route::post('/', [ControllerKey::class, 'store'])->name('store');
+        Route::get('/show', [ControllerListKeySharing::class, 'show'])->name('show');
+        Route::post('/accept', [ControllerListKeySharing::class, 'accept'])->name('accept');
+        Route::post('/decline', [ControllerListKeySharing::class, 'decline'])->name('decline');
 
         Route::group([
             'prefix' => 'informasi',

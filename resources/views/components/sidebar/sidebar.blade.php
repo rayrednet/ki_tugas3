@@ -11,9 +11,9 @@
             <x-sidebar-item href="{{ route('file.index') }}" title="Bank File" icon="file-lock">
             </x-sidebar-item>
             <br/><br/>
-            {{-- <x-sidebar-item href="{{ route('share.request') }}" title="Request Data" icon="share"> --}}
-            {{-- </x-sidebar-item> --}}
-            <x-sidebar-item href="{{ route('share.show') }}" title="Share Key" icon="share">
+            <x-sidebar-item href="{{ route('share.index') }}" title="Request Key" icon="share">
+            </x-sidebar-item>
+            <x-sidebar-item href="{{ route('share.show') }}" title="List Permintaan Key" icon="share">
             </x-sidebar-item>
             <x-sidebar-item href="{{ route('share.informasi.index') }}" title="Informasi User Lain" icon="share">
             </x-sidebar-item>
