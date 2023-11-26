@@ -20,6 +20,7 @@ class ControllerListKeySharing extends Controller
         $permintaan = DB::table('key_request')
             ->join('users', 'key_request.user_id', '=', 'users.id')
             ->select('users.username', 'key_request.contact', 'key_request.address')
+            // ->where('key_request.contact', '', 'users.username')
             ->get();
 
         $idTujuan = $request->query('user_id');
