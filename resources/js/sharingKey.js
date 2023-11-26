@@ -2,13 +2,8 @@ import $ from "jquery";
 
 $(".btn-request").on("click", function () {
     let username = $(this).data("username").username;
-    let kontak = $(this).data("kontak").contact;
-    let tujuan = $(this).data("tujuan").address;
 
     $("#username").val(username);
-    $("#kontak").val(kontak);
-    $("#tujuan").val(tujuan);
-
 });
 
 
