@@ -33,7 +33,7 @@ class ControllerFile extends Controller
             $encryptor = new Encryptor($file->enkripsi_digunakan, $key, $file->getIV());
             array_push($daftarFile, [
                 'id' => $file->id,
-                'nama_file' => $encryptor->decrypt(hex2bin($file->nama_file)),
+                'nama_file' => $encryptor->decrypt(hex2bin($file->nama_file)),  
             ]);
         }
 

