@@ -14,6 +14,7 @@
                     <button onclick="shareViaEmail('{{ $daftar_kontak["address"] }}')" class="btn btn-danger btn-sm mt-2">Email</button>
                 @elseif ($daftar_kontak["contact"] == "telegram")
                     <button onclick="shareViaTelegram('{{ $daftar_kontak["address"] }}')" class="btn btn-primary btn-sm mt-2">Telegram</button>
+
                 @endif
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>

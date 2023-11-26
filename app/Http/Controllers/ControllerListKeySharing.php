@@ -26,6 +26,10 @@ class ControllerListKeySharing extends Controller
 
         // dd($permintaan);
 
+            // ->where('key_request.contact', '', 'users.username')
+            ->get();
+
+
         $idTujuan = $request->query('user_id');
         if ($idTujuan == null) {
             return view('share.listrequest', [
@@ -52,7 +56,7 @@ class ControllerListKeySharing extends Controller
         //     ->where('user_id', '=', $kontakTujuan)
         //     ->delete();
 
-        DB::table('key_request')
+      DB::table('key_request')
             ->join('users', 'key_request.user_id_tujuan', '=', 'users.id')
             ->where('users.username', '=', $passData)
             ->delete();
