@@ -76,7 +76,6 @@ class ControllerShareInformasiUser extends Controller
             ]);
         }
         catch(Exception $e) {
-            dd($e);
             return redirect()->back()->withErrors([
                 'error' => 'Key enkripsi salah.'
             ]);
