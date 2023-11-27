@@ -23,7 +23,7 @@ class RequestDownloadShareFileUser extends FormRequest
     public function rules(): array
     {
         return [
-            'key_user' => ['required'],
+            'key_akses' => ['required'],
             'id' => ['required'],
         ];
     }
@@ -31,7 +31,7 @@ class RequestDownloadShareFileUser extends FormRequest
     public function messages()
     {
         return [
-            'key_user.required' => 'Key tidak boleh kosong.',
+            'key_akses.required' => 'Key tidak boleh kosong.',
             'id.required' => 'ID file tidak boleh kosong.',
         ];
     }

@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('informasi_user', function (Blueprint $table) {
+        Schema::create('file', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('user_id');
-            $table->string('nama_informasi', 255);
-            $table->string('isi_informasi', 255);
+            $table->string('nama_file', 255);
+            $table->string('nama_file_fisik', 255);
             $table->string('enkripsi_digunakan');
             $table->string('iv');
         });
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('informasi_user');
+        Schema::dropIfExists('file_user');
     }
 };

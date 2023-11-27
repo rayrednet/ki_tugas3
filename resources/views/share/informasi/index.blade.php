@@ -13,7 +13,7 @@
                 @endif
                 <div class="form-outline mb-4">
                     <label class="form-label" for="nama">Key User</label>
-                    <input type="text" id="key_user" name="key_user" class="form-control" placeholder="Key user yang anda terima" required />
+                    <input type="text" id="key_akses" name="key_akses" class="form-control" placeholder="Key user yang anda terima" required />
                 </div>
                 <div class="justify-content-center d-flex">
                     <button type="submit" class="btn btn-primary btn-block mb-4 px-4">Submit</button>

@@ -13,12 +13,10 @@
             <br/><br/>
             <x-sidebar-item href="{{ route('share.index') }}" title="Request Key" icon="share">
             </x-sidebar-item>
-            <x-sidebar-item href="{{ route('share.show') }}" title="List Permintaan Key" icon="share">
-            </x-sidebar-item>
             <x-sidebar-item href="{{ route('share.informasi.index') }}" title="Informasi User Lain" icon="share">
             </x-sidebar-item>
             <x-sidebar-item href="{{ route('share.file.index') }}" title="File User Lain" icon="share">
-            </x-sidebar-item>            
+            </x-sidebar-item>
         </ul>
         <div class="fixed bottom-0 w-full flex justify-center">
             <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">

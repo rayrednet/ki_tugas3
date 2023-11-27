@@ -11,13 +11,12 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('informasi', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('username', 64);
-            $table->string('password', 64);
-            $table->string('key_public', 4096);
-            $table->string('key_private', 4096);
-            $table->string('key_enkripsi', 4096);
+            $table->string('nama_informasi', 255);
+            $table->string('isi_informasi', 255);
+            $table->string('enkripsi_digunakan');
+            $table->string('iv');
         });
     }
 
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('informasi');
     }
 };

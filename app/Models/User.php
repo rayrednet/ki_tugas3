@@ -6,7 +6,8 @@ namespace App\Models;
 
 use Exception;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasManyThrough;
+use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
@@ -24,7 +25,7 @@ class User extends Authenticatable
 
     protected $table = 'users';
     protected $keyType = 'string';
-
+    public $incrementing = false;
     public $timestamps = false;
 
     /**
@@ -36,13 +37,6 @@ class User extends Authenticatable
         'id',
         'username',
         'password',
-        'nama',
-        'email',
-        'tanggal_lahir',
-        'alamat',
-        'nomor_telepon',
-        'enkripsi_digunakan',
-        'iv',
         'key_public',
         'key_private',
         'key_enkripsi',
@@ -66,7 +60,7 @@ class User extends Authenticatable
         'password' => 'hashed',
     ];
 
-    public static function createUser(String $username, String $password) : User
+    public static function createUser(string $username, string $password) : User
     {
         $hasher = new Hash('sha256');
         $appKey = base64_decode(substr(getenv('APP_KEY'), 7)); // Menghapus 'base64:' dari awal string
@@ -80,8 +74,8 @@ class User extends Authenticatable
         $symmetricKey = $hasher->hash("{$password}.{$salt}");
 
         $secureSymmetricKey = $encryptor->encrypt($symmetricKey);
-        $securePublicKey = $encryptor->encrypt($publicKey->toString('PKCS8'));
-        $securePrivateKey = $encryptor->encrypt($privateKey->toString('PKCS8'));
+        $securePublicKey = $encryptor->encrypt($publicKey->tostring('PKCS8'));
+        $securePrivateKey = $encryptor->encrypt($privateKey->tostring('PKCS8'));
 
         $userBaru = new User([
             'id' => Str::uuid(),
@@ -96,19 +90,48 @@ class User extends Authenticatable
     }
 
     public function setProfile(
-        String $enkripsiDigunakan, String $iv, String $nama, String $email,
-        String $tanggalLahir, String $alamat, String $nomorTelepon
+        string $enkripsiDigunakan, string $nama, string $email,
+        string $tanggalLahir, string $alamat, string $nomorTelepon
     ) {
-        $this->enkripsi_digunakan = $enkripsiDigunakan;
-        $this->iv = bin2hex($iv);
-        $this->nama = $nama;
-        $this->email = $email;
-        $this->tanggal_lahir = $tanggalLahir;
-        $this->alamat = $alamat;
-        $this->nomor_telepon = $nomorTelepon;
+        $keyModel = KeyModel::query()->where([
+            ['key', '=', $this->key_enkripsi],
+            ['data', '=', ProfileModel::class]
+        ])->first();
+
+        if ($keyModel === null) {
+            $profileModel = ProfileModel::createProfile($this->getKeyEnkripsi(), $nama, $email, $tanggalLahir, $alamat, $nomorTelepon, $enkripsiDigunakan);
+            $profileModel->save();
+
+            $keyModel = KeyModel::createKeyModel($this->key_enkripsi, ProfileModel::class, $profileModel->id);
+            $keyModel->save();
+        }
+        else {
+            /**
+             * @var ProfileModel
+             */
+            $profileModel = $keyModel->profile();
+            $profileModel->editProfile($this->getKeyEnkripsi(), $nama, $email, $tanggalLahir, $alamat, $nomorTelepon, $enkripsiDigunakan);
+            $profileModel->save();
+        }
     }
 
-    public function getKeyEnkripsi() : String
+    public function profile() : HasOneThrough {
+        return $this->hasOneThrough('App\Models\ProfileModel', 'App\Models\KeyModel', 'key', 'id', 'key_enkripsi', 'id')->where('data', '=', ProfileModel::class)->with('key');
+    }
+
+    public function informasi_user() : HasManyThrough {
+        return $this->hasManyThrough('App\Models\InformasiModel', 'App\Models\KeyModel', 'key', 'id', 'key_enkripsi', 'id')
+            ->where('key.data', '=', InformasiModel::class)->with('key')
+            ->select('informasi.id', 'nama_informasi', 'isi_informasi', 'enkripsi_digunakan', 'iv');
+    }
+
+    public function file_user() : HasManyThrough {
+        return $this->hasManyThrough('App\Models\FileModel', 'App\Models\KeyModel', 'key', 'id', 'key_enkripsi', 'id')
+            ->where('key.data', '=', FileModel::class)->with('key')
+            ->select('file.id', 'nama_file', 'nama_file_fisik', 'enkripsi_digunakan', 'iv');
+    }
+
+    public function getKeyEnkripsi() : string
     {
         $appKey = base64_decode(substr(getenv('APP_KEY'), 7)); // Menghapus 'base64:' dari awal string
         $hasher = new Hash('sha256');
@@ -119,7 +142,7 @@ class User extends Authenticatable
         return $encryptor->decrypt(hex2bin($this->key_enkripsi));
     }
 
-    public function getPublicKey() : String
+    public function getPublicKey() : string
     {
         $appKey = base64_decode(substr(getenv('APP_KEY'), 7)); // Menghapus 'base64:' dari awal string
         $hasher = new Hash('sha256');
@@ -130,7 +153,7 @@ class User extends Authenticatable
         return $encryptor->decrypt(hex2bin($this->key_public));
     }
 
-    public function getPrivateKey() : String
+    public function getPrivateKey() : string
     {
         $appKey = base64_decode(substr(getenv('APP_KEY'), 7)); // Menghapus 'base64:' dari awal string
         $hasher = new Hash('sha256');
@@ -159,38 +182,5 @@ class User extends Authenticatable
             throw new Exception('Error private key...');
         }
         return $encryptor;
-    }
-
-    public function kirimKeyEnkripsiPada(User $tujuan) : String
-    {
-        $keySendiri = $this->key_enkripsi;
-        $encryptor = $tujuan->getPublicEncryptor();
-
-        if (!($encryptor instanceof PublicKey)) {
-            throw new Exception('Error key tidak sesuai');
-        }
-
-        $encryptedKeySendiri = bin2hex($encryptor->encrypt($keySendiri));
-        return $encryptedKeySendiri;
-    }
-
-    public function getIV() : String
-    {
-        return hex2bin($this->iv);
-    }
-
-    public function file_user() : HasMany
-    {
-        return $this->hasMany('App\Models\FileUser', 'user_id', 'id');
-    }
-
-    public function informasi_user() : HasMany
-    {
-        return $this->hasMany('App\Models\InformasiUser', 'user_id', 'id');
-    }
-
-    public function key_sharing() : HasMany
-    {
-        return $this->hasMany('App\Models\KeySharing', 'user_tujuan_id', 'id');
     }
 }

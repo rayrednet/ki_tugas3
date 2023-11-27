@@ -11,11 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('file_user', function (Blueprint $table) {
+        Schema::create('profile', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->foreignUuid('user_id');
-            $table->string('nama_file', 255);
-            $table->string('nama_file_fisik', 255);
+            $table->string('nama', 64);
+            $table->string('email', 255);
+            $table->string('tanggal_lahir');
+            $table->string('alamat');
+            $table->string('nomor_telepon');
             $table->string('enkripsi_digunakan');
             $table->string('iv');
         });
@@ -26,6 +28,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('file_user');
+        Schema::dropIfExists('profile');
     }
 };

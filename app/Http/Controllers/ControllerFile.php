@@ -4,9 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Helper\Encryptor;
 use App\Http\Requests\File\RequestCreateFile;
-use App\Models\FileUser;
+use App\Models\FileModel;
+use App\Models\KeyModel;
 use App\Models\User;
-use Illuminate\Database\QueryException;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
@@ -24,16 +24,14 @@ class ControllerFile extends Controller
         $fileUser = $user->file_user;
         $daftarFile = [];
 
-        $key = $user->getKeyEnkripsi();
-
         /**
-         * @var FileUser
+         * @var FileModel
          */
         foreach($fileUser as $file) {
-            $encryptor = new Encryptor($file->enkripsi_digunakan, $key, $file->getIV());
+            $dataFile = $file->decryptFile();
             array_push($daftarFile, [
                 'id' => $file->id,
-                'nama_file' => $encryptor->decrypt(hex2bin($file->nama_file)),  
+                'nama_file' => $dataFile['nama_file'],
             ]);
         }
 
@@ -59,25 +57,28 @@ class ControllerFile extends Controller
         $daftarFileUpload = $validated['upload'];
         $enkripsiDigunakan = $validated['enkripsi_digunakan'];
 
-        $iv = Random::string(16);
-        $encryptor = new Encryptor($enkripsiDigunakan, $user->getKeyEnkripsi(), $iv);
+        $keyUser = $user->getKeyEnkripsi();
 
         /**
          * @var UploadedFile
          */
-        foreach($validated['upload'] as $file) {
+        foreach($daftarFileUpload as $file) {
             $namaFileFisik = Str::uuid();
+            $fileBaru = FileModel::createFile(
+                $keyUser, $file->getClientOriginalName(), "files/{$namaFileFisik}",
+                $enkripsiDigunakan
+            );
+
+
+            $encryptor = new Encryptor($enkripsiDigunakan, $user->getKeyEnkripsi(), $fileBaru->iv());
             $isiFile = file_get_contents($file->getRealPath());
             $isiFileTerenkripsi = $encryptor->encrypt($isiFile);
-
             Storage::disk('private')->put("files/{$namaFileFisik}", $isiFileTerenkripsi);
 
-            $fileBaru = FileUser::createFileUser(
-                $user, bin2hex($encryptor->encrypt($file->getClientOriginalName())),
-                "files/{$namaFileFisik}",
-                $enkripsiDigunakan, bin2hex($iv)
-            );
             $fileBaru->save();
+
+            $keyModel = KeyModel::createKeyModel($user->key_enkripsi, FileModel::class, $fileBaru->id);
+            $keyModel->save();
         }
         return redirect()->route('file.index');
     }
@@ -90,28 +91,27 @@ class ControllerFile extends Controller
         $user = Auth::user();
 
         /**
-         * @var FileUser|null
+         * @var FileModel|null
          */
-        $fileUser = $user->file_user()->getQuery()->where('file_user.id', '=', $id)->first();
+        $fileUser = $user->file_user()->getQuery()->where('file.id', '=', $id)->first();
         if ($fileUser === null) {
             return redirect()->back();
         }
 
-        $encryptor = new Encryptor($fileUser->enkripsi_digunakan, $user->getKeyEnkripsi(), $fileUser->getIV());
-
-        $fileName = $encryptor->decrypt(hex2bin($fileUser->nama_file));
+        $dataFile = $fileUser->decryptFile();
 
         $isiFileFisikEncrypted = Storage::disk('private')->get($fileUser->nama_file_fisik);
         if ($isiFileFisikEncrypted === null) {
             return redirect()->back();
         }
 
+        $encryptor = new Encryptor($dataFile['enkripsi_digunakan'], $fileUser->key->getKeyEnkripsi(), $fileUser->iv());
         $isiFileDecrypted = $encryptor->decrypt($isiFileFisikEncrypted);
         $namaFileSementara = Str::uuid();
 
         Storage::disk('private')->put("tmp/{$namaFileSementara}", $isiFileDecrypted);
 
-        return response()->download(storage_path("app/private/tmp/{$namaFileSementara}"), $fileName)->deleteFileAfterSend(true);
+        return response()->download(storage_path("app/private/tmp/{$namaFileSementara}"), $dataFile['nama_file'])->deleteFileAfterSend(true);
     }
 
     public function delete(String $id)

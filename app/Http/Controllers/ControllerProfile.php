@@ -18,45 +18,45 @@ class ControllerProfile extends Controller
          */
         $user = Auth::user();
 
-        $encryptedNama = $user->nama;
-        $encryptedEmail = $user->email;
-        $encryptedTanggalLahir = $user->tanggal_lahir;
-        $encryptedAlamat = $user->alamat;
-        $encryptedNomorTelepon = $user->nomor_telepon;
-        $encryptionUsed = $user->enkripsi_digunakan;
+        $profileUser = $user->profile;
+        $profile = [];
 
-        $profile = [
-            'ID' => str($user->id),
-            'Nama' => '-- Belum Diisi --',
-            'Email' => '-- Belum Diisi --',
-            'Tanggal Lahir' => '-- Belum Diisi --',
-            'Alamat' => '-- Belum Diisi --',
-            'Nomor Telepon (WhatsApp)' => '-- Belum Diisi --',
-        ];
+        if ($profileUser == null) {
+            $profile = [
+                'ID' => str($user->id),
+                'Nama' => '-- Belum Diisi --',
+                'Email' => '-- Belum Diisi --',
+                'Tanggal Lahir' => '-- Belum Diisi --',
+                'Alamat' => '-- Belum Diisi --',
+                'Nomor Telepon (WhatsApp)' => '-- Belum Diisi --',
+            ];
 
-        if ($encryptionUsed != null) {
-            try {
-                $encryptor = new Encryptor($encryptionUsed, $user->getKeyEnkripsi(), $user->getIV());
-                $profile = [
-                    'ID' => str($user->id),
-                    'Nama' => $encryptor->decrypt(hex2bin($encryptedNama)),
-                    'Email' => $encryptor->decrypt(hex2bin($encryptedEmail)),
-                    'Tanggal Lahir' => $encryptor->decrypt(hex2bin($encryptedTanggalLahir)),
-                    'Alamat' => $encryptor->decrypt(hex2bin($encryptedAlamat)),
-                    'Nomor Telepon (WhatsApp)' => $encryptor->decrypt(hex2bin($encryptedNomorTelepon)),
-                ];
+            return view('profile.index', [
+                'profile' => $profile
+            ]);
+        }
 
-            }
-            catch(Exception $e) {
-                $profile = [
-                    'ID' => str($user->id),
-                    'Nama' => '-- Gagal Dekripsi --',
-                    'Email' => '-- Gagal Dekripsi --',
-                    'Tanggal Lahir' => '-- Gagal Dekripsi --',
-                    'Alamat' => '-- Gagal Dekripsi --',
-                    'Nomor Telepon (WhatsApp)' => '-- Gagal Dekripsi --',
-                ];
-            }
+        try {
+            $dataProfileUser = $profileUser->decryptProfile();
+            $profile = [
+                'ID' => str($user->id),
+                'Nama' => $dataProfileUser['nama'],
+                'Email' => $dataProfileUser['email'],
+                'Tanggal Lahir' => $dataProfileUser['tanggal_lahir'],
+                'Alamat' => $dataProfileUser['alamat'],
+                'Nomor Telepon (WhatsApp)' => $dataProfileUser['nomor_telepon'],
+            ];
+
+        }
+        catch(Exception $e) {
+            $profile = [
+                'ID' => str($user->id),
+                'Nama' => '-- Gagal Dekripsi --',
+                'Email' => '-- Gagal Dekripsi --',
+                'Tanggal Lahir' => '-- Gagal Dekripsi --',
+                'Alamat' => '-- Gagal Dekripsi --',
+                'Nomor Telepon (WhatsApp)' => '-- Gagal Dekripsi --',
+            ];
         }
 
         return view('profile.index', [
@@ -71,33 +71,26 @@ class ControllerProfile extends Controller
          */
         $user = Auth::user();
 
-        $encryptedNama = $user->nama;
-        $encryptedEmail = $user->email;
-        $encryptedTanggalLahir = $user->tanggal_lahir;
-        $encryptedAlamat = $user->alamat;
-        $encryptedNomorTelepon = $user->nomor_telepon;
-        $encryptionUsed = $user->enkripsi_digunakan;
-        $iv = $user->getIV();
-
         $profile = [
             'nama' => '',
             'email' => '',
             'tanggal_lahir' => '',
             'alamat' => '',
             'nomor_telepon' => '',
-            'enkripsi_digunakan' => $encryptionUsed,
+            'enkripsi_digunakan' => '',
         ];
 
-        if ($encryptionUsed != null) {
+        $profileUser = $user->profile;
+        if ($profileUser != null) {
             try {
-                $encryptor = new Encryptor($encryptionUsed, $user->getKeyEnkripsi(), $iv);
+                $dataProfileUser = $profileUser->decryptProfile();
                 $profile = [
-                    'nama' => $encryptor->decrypt(hex2bin($encryptedNama)),
-                    'email' => $encryptor->decrypt(hex2bin($encryptedEmail)),
-                    'tanggal_lahir' => $encryptor->decrypt(hex2bin($encryptedTanggalLahir)),
-                    'alamat' => $encryptor->decrypt(hex2bin($encryptedAlamat)),
-                    'nomor_telepon' => $encryptor->decrypt(hex2bin($encryptedNomorTelepon)),
-                    'enkripsi_digunakan' => $encryptionUsed,
+                    'nama' => $dataProfileUser['nama'],
+                    'email' => $dataProfileUser['email'],
+                    'tanggal_lahir' => $dataProfileUser['tanggal_lahir'],
+                    'alamat' => $dataProfileUser['alamat'],
+                    'nomor_telepon' => $dataProfileUser['nomor_telepon'],
+                    'enkripsi_digunakan' => $dataProfileUser['enkripsi_digunakan'],
                 ];
             }
             catch(Exception $e) {}
@@ -125,16 +118,7 @@ class ControllerProfile extends Controller
         $user = Auth::user();
 
         try {
-            $iv = Random::string(16);
-            $encryptor = new Encryptor($enkripsiDigunakan, $user->getKeyEnkripsi(), $iv);
-            $encryptedNama = bin2hex($encryptor->encrypt($nama));
-            $encryptedEmail = bin2hex($encryptor->encrypt($email));
-            $encryptedTanggalLahir = bin2hex($encryptor->encrypt($tanggalLahir));
-            $encryptedAlamat = bin2hex($encryptor->encrypt($alamat));
-            $encryptedNomorTelepon = bin2hex($encryptor->encrypt($nomorTelepon));
-
-            $user->setProfile($enkripsiDigunakan, $iv, $encryptedNama, $encryptedEmail, $encryptedTanggalLahir, $encryptedAlamat, $encryptedNomorTelepon);
-            $user->save();
+            $user->setProfile($enkripsiDigunakan, $nama, $email, $tanggalLahir, $alamat, $nomorTelepon);
         }
         catch(Exception $e) {
             return redirect()->back()->withErrors([

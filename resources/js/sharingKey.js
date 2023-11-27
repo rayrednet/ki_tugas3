@@ -1,15 +1,17 @@
 import $ from "jquery";
 
 $(".btn-request").on("click", function () {
-    let username = $(this).data("username").username;
+    let username = $(this).data("user").username;
+    let userId = $(this).data("user").id;
 
     $("#username").val(username);
+    $("#user_id").val(userId);
 });
 
 
 function shareViaWhatsApp() {
     var key = document.getElementById("keyText").innerText;
-    var phoneNumber = "6285101339177"; 
+    var phoneNumber = "6285101339177";
     var whatsappUrl = "https://wa.me/" + phoneNumber + "?text=" + encodeURIComponent("Your custom message: " + key);
     window.open(whatsappUrl, '_blank');
 }

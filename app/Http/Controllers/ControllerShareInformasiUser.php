@@ -4,7 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Helper\Encryptor;
 use App\Http\Requests\Share\RequestShowShareInformasiUser;
+use App\Models\InformasiModel;
 use App\Models\InformasiUser;
+use App\Models\KeyModel;
+use App\Models\ProfileModel;
 use App\Models\User;
 use Exception;
 use Illuminate\Http\Request;
@@ -22,7 +25,7 @@ class ControllerShareInformasiUser extends Controller
     {
         $validated = $request->validated();
 
-        $keyEnkripsi = $validated['key_user'];
+        $keyEnkripsi = $validated['key_akses'];
 
         try  {
             /**
@@ -30,72 +33,42 @@ class ControllerShareInformasiUser extends Controller
              */
             $user = Auth::user();
             $privateDecryptor = $user->getPrivateEncryptor();
-            $keyUserLain = $privateDecryptor->decrypt(hex2bin($keyEnkripsi));
-
-            /**
-             * @var User|null
-             */
-            $userTujuan = User::query()->where('key_enkripsi', '=', $keyUserLain)->first();
-            if ($userTujuan === null) {
-                return redirect()->back()->withErrors([
-                    'error' => 'Key enkripsi salah.'
-                ]);
-            }
+            $keyAkses = $privateDecryptor->decrypt(hex2bin($keyEnkripsi));
 
             $profile = [];
-            if ($userTujuan->enkripsi_digunakan !== null) {
-                $encryptor = new Encryptor($userTujuan->enkripsi_digunakan, $userTujuan->getKeyEnkripsi(), $userTujuan->getIV());
-                try {
-                    $profile = [
-                        'Nama' => $encryptor->decrypt(hex2bin($userTujuan->nama)),
-                        'Email' => $encryptor->decrypt(hex2bin($userTujuan->email)),
-                        'Tanggal lahir' => $encryptor->decrypt(hex2bin($userTujuan->tanggal_lahir)),
-                        'Alamat' => $encryptor->decrypt(hex2bin($userTujuan->alamat)),
-                        'Nomor telepon' => $encryptor->decrypt(hex2bin($userTujuan->nomor_telepon)),
-                    ];
-                }
-                catch(Exception $e) {
-                    $profile = [
-                        'Nama' => '-- Gagal dekripsi --',
-                        'Email' => '-- Gagal dekripsi --',
-                        'Tanggal lahir' => '-- Gagal dekripsi --',
-                        'Alamat' => '-- Gagal dekripsi --',
-                        'Nomor telepon' => '-- Gagal dekripsi --',
-                    ];
-                }
-            }
-            else {
+            $daftarInformasi = [];
+
+            /**
+             * @var ProfileModel|null
+             */
+            $dataProfile = ProfileModel::query()->withWhereHas('key', function($query) use ($keyAkses) {
+                $query->where('key', '=', $keyAkses);
+            })->first();
+
+            if ($dataProfile !== null) {
+                $decrypted = $dataProfile->decryptProfile();
                 $profile = [
-                    'Nama' => '-- Belum Diisi --',
-                    'Email' => '-- Belum Diisi --',
-                    'Tanggal lahir' => '-- Belum Diisi --',
-                    'Alamat' => '-- Belum Diisi --',
-                    'Nomor telepon' => '-- Belum Diisi --',
+                    'Nama' => $decrypted['nama'],
+                    'Email' => $decrypted['email'],
+                    'Tanggal lahir' => $decrypted['tanggal_lahir'],
+                    'Alamat' => $decrypted['alamat'],
+                    'Nomor telepon' => $decrypted['nomor_telepon'],
                 ];
             }
 
-            $daftarInformasi = [];
-            $informasiUser = $userTujuan->informasi_user;
-
+            $dataInformasi = InformasiModel::query()->withWhereHas('key', function($query) use ($keyAkses) {
+                $query->where('key', '=', $keyAkses);
+            })->get();
             /**
-             * @var InformasiUser
+             * @var InformasiModel
              */
-            foreach($informasiUser as $informasi) {
-                $encryptor = new Encryptor($informasi->enkripsi_digunakan, $userTujuan->getKeyEnkripsi(), $informasi->getIV());
-                try {
-                    array_push($daftarInformasi, [
-                        'nama_informasi' => $encryptor->decrypt(hex2bin($informasi->nama_informasi)),
-                        'isi_informasi' => $encryptor->decrypt(hex2bin($informasi->isi_informasi)),
-                    ]);
-                }
-                catch(Exception $e) {
-                    array_push($daftarInformasi, [
-                        'nama_informasi' => '-- Gagal dekripsi --',
-                        'isi_informasi' => '-- Gagal dekripsi --',
-                    ]);
-                }
+            foreach($dataInformasi as $data) {
+                $decrypted = $data->decryptInformasi();
+                array_push($daftarInformasi, [
+                    'nama_informasi' => $decrypted['nama_informasi'],
+                    'isi_informasi' => $decrypted['isi_informasi'],
+                ]);
             }
-
 
             return view('share.informasi.show', [
                 'profile' => $profile,
@@ -103,6 +76,7 @@ class ControllerShareInformasiUser extends Controller
             ]);
         }
         catch(Exception $e) {
+            dd($e);
             return redirect()->back()->withErrors([
                 'error' => 'Key enkripsi salah.'
             ]);

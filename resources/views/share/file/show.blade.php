@@ -17,7 +17,7 @@
                                     <div class="d-flex justify-content-around">
                                         <form method="post" action="{{ route('share.file.download') }}">
                                             @csrf
-                                            <input type="text" name="key_user" value="{{ $key }}" hidden readonly />
+                                            <input type="text" name="key_akses" value="{{ $key }}" hidden readonly />
                                             <input type="text" name="id" value="{{ $file['id'] }}" hidden readonly />
                                             <button type="submit" class="btn btn-block btn-light border border-dark"><i class="fs-6 bi-download"></i></button>
                                         </form>

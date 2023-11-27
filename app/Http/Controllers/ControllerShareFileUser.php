@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Helper\Encryptor;
 use App\Http\Requests\Share\RequestDownloadShareFileUser;
 use App\Http\Requests\Share\RequestShowShareFileUser;
-use App\Models\InformasiUser;
+use App\Models\FileModel;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Str;
@@ -23,7 +23,7 @@ class ControllerShareFileUser extends Controller
     {
         $validated = $request->validated();
 
-        $keyEnkripsi = $validated['key_user'];
+        $keyEnkripsi = $validated['key_akses'];
 
         try  {
             /**
@@ -31,29 +31,27 @@ class ControllerShareFileUser extends Controller
              */
             $user = Auth::user();
             $privateDecryptor = $user->getPrivateEncryptor();
-            $keyUserLain = $privateDecryptor->decrypt(hex2bin($keyEnkripsi));
-
-            /**
-             * @var User|null
-             */
-            $userTujuan = User::query()->where('key_enkripsi', '=', $keyUserLain)->first();
-            if ($userTujuan === null) {
-                return redirect()->back()->withErrors([
-                    'error' => 'Key enkripsi salah.'
-                ]);
-            }
-            $fileUser = $userTujuan->file_user;
+            $keyAkses = $privateDecryptor->decrypt(hex2bin($keyEnkripsi));
 
             $daftarFile = [];
 
             /**
-             * @var FileUser
+             * @var FileModel|null
              */
-            foreach($fileUser as $file) {
-                $encryptor = new Encryptor($file->enkripsi_digunakan, $userTujuan->getKeyEnkripsi(), $file->getIV());
+            $dataFile = FileModel::query()->withWhereHas('key', function($query) use ($keyAkses) {
+                $query->where('key', '=', $keyAkses);
+            })->get();
+
+            $daftarFile = [];
+
+            /**
+             * @var FileModel
+             */
+            foreach($dataFile as $file) {
+                $decrypted = $file->decryptFile();
                 array_push($daftarFile, [
-                    'id' => $file->id,
-                    'nama_file' => $encryptor->decrypt(hex2bin($file->nama_file)),
+                    'id' => $decrypted['id'],
+                    'nama_file' => $decrypted['nama_file'],
                 ]);
             }
 
@@ -79,50 +77,41 @@ class ControllerShareFileUser extends Controller
     {
         $validated = $request->validated();
         $id = $validated['id'];
-        $keyEnkripsi = $validated['key_user'];
+        $keyEnkripsi = $validated['key_akses'];
+
         try  {
             /**
              * @var User
              */
             $user = Auth::user();
             $privateDecryptor = $user->getPrivateEncryptor();
-            $keyUserLain = $privateDecryptor->decrypt(hex2bin($keyEnkripsi));
+            $keyAkses = $privateDecryptor->decrypt(hex2bin($keyEnkripsi));
 
             /**
-             * @var User|null
+             * @var FileModel|null
              */
-            $userTujuan = User::query()->where('key_enkripsi', '=', $keyUserLain)->first();
-            if ($userTujuan === null) {
-                return redirect()->back()->withErrors([
-                    'error' => 'Key enkripsi salah.'
-                ]);
-            }
-
-            /**
-             * @var FileUser|null
-             */
-            $fileUser = $userTujuan->file_user()->getQuery()->where('file_user.id', '=', $id)->first();
+            $fileUser = FileModel::query()->withWhereHas('key', function($query) use ($keyAkses) {
+                $query->where('key', '=', $keyAkses);
+            })->where('id', '=', $id)->first();
             if ($fileUser === null) {
                 return redirect()->back();
             }
 
-            $encryptor = new Encryptor($fileUser->enkripsi_digunakan, $userTujuan->getKeyEnkripsi(), $fileUser->getIV());
-
-            $fileName = $encryptor->decrypt(hex2bin($fileUser->nama_file));
+            $dataFile = $fileUser->decryptFile();
 
             $isiFileFisikEncrypted = Storage::disk('private')->get($fileUser->nama_file_fisik);
             if ($isiFileFisikEncrypted === null) {
                 return redirect()->back();
             }
 
+            $encryptor = new Encryptor($dataFile['enkripsi_digunakan'], $fileUser->key->getKeyEnkripsi(), $fileUser->iv());
             $isiFileDecrypted = $encryptor->decrypt($isiFileFisikEncrypted);
             $namaFileSementara = Str::uuid();
 
             Storage::disk('private')->put("tmp/{$namaFileSementara}", $isiFileDecrypted);
 
-            return response()->download(storage_path("app/private/tmp/{$namaFileSementara}"), $fileName)->deleteFileAfterSend(true);
+            return response()->download(storage_path("app/private/tmp/{$namaFileSementara}"), $dataFile['nama_file'])->deleteFileAfterSend(true);
         }
-
         catch(Exception $e) {
             return redirect()->back()->withErrors([
                 'error' => 'Key enkripsi salah.'

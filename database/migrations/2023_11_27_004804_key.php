@@ -11,12 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('key_request', function (Blueprint $table) {
-            $table->uuid('id');
-            $table->string('user_id');
-            $table->string('user_id_tujuan');
-            $table->string('contact');
-            $table->string('address');
+        Schema::create('key', function (Blueprint $table) {
+            $table->string('key');
+            $table->string('data');
+            $table->foreignUuid('id');
         });
     }
 
@@ -25,6 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('key_request');
+        Schema::dropIfExists('key');
     }
 };
