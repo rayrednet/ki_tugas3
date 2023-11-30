@@ -40,6 +40,8 @@ class User extends Authenticatable
         'key_public',
         'key_private',
         'key_enkripsi',
+        'digital_signature_public',
+        'digital_signature_private',
     ];
 
     /**
@@ -182,5 +184,88 @@ class User extends Authenticatable
             throw new Exception('Error private key...');
         }
         return $encryptor;
+    }
+
+    public function checkNoKeySignature() : bool
+    {
+        if ($this->digital_signature_private === null) {
+            return true;
+        }
+        return false;
+    }
+
+    private function setDigitalSignature(PrivateKey $privateKey, PublicKey $publicKey)
+    {
+        $appKey = base64_decode(substr(getenv('APP_KEY'), 7)); // Menghapus 'base64:' dari awal string
+        $hasher = new Hash('sha256');
+        $encryptor = new AES('cbc');
+        $encryptor->setKey($appKey);
+        $encryptor->setIV(substr($hasher->hash($appKey), 0, 16));
+
+
+        $this->digital_signature_private = bin2hex($encryptor->encrypt($privateKey->tostring('PKCS8')));
+        $this->digital_signature_public = bin2hex($encryptor->encrypt($publicKey->tostring('PKCS8')));
+    }
+
+    public function setOwnSignature(string $private)
+    {
+        $privateKey = RSA::load($private);
+        if (!($privateKey instanceof PrivateKey)) {
+            throw new Exception('Error private key...');
+        }
+
+        $this->setDigitalSignature($privateKey, $privateKey->getPublicKey());
+    }
+
+    public function generateDigitalSignature()
+    {
+        if (!$this->checkNoKeySignature()) {
+            throw new Exception('Already have key signature');
+        }
+
+        $privateKey = RSA::createKey();
+        $this->setDigitalSignature($privateKey, $privateKey->getPublicKey());
+    }
+
+    public function sign(string $data)
+    {
+        if ($this->checkNoKeySignature()) {
+            throw new Exception('No private key');
+        }
+
+        $appKey = base64_decode(substr(getenv('APP_KEY'), 7)); // Menghapus 'base64:' dari awal string
+        $hasher = new Hash('sha256');
+        $encryptor = new AES('cbc');
+        $encryptor->setKey($appKey);
+        $encryptor->setIV(substr($hasher->hash($appKey), 0, 16));
+
+        $privateKeyString = $encryptor->decrypt(hex2bin($this->digital_signature_private));;
+        $privateKey = RSA::load($privateKeyString);
+        if (!($privateKey instanceof PrivateKey)) {
+            throw new Exception('Error private key...');
+        }
+
+        return $privateKey->sign($data);
+    }
+
+    public function verify(string $data, string $signature) : bool
+    {
+        if ($this->checkNoKeySignature()) {
+            throw new Exception('No public key');
+        }
+
+        $appKey = base64_decode(substr(getenv('APP_KEY'), 7)); // Menghapus 'base64:' dari awal string
+        $hasher = new Hash('sha256');
+        $encryptor = new AES('cbc');
+        $encryptor->setKey($appKey);
+        $encryptor->setIV(substr($hasher->hash($appKey), 0, 16));
+
+        $publicKeyString = $encryptor->decrypt(hex2bin($this->digital_signature_public));;
+        $publicKey = RSA::load($publicKeyString);
+        if (!($publicKey instanceof PublicKey)) {
+            throw new Exception('Error public key...');
+        }
+
+        return $publicKey->verify($data, $signature);
     }
 }

@@ -3,11 +3,14 @@
 use App\Http\Controllers\Autentikasi\ControllerAutentikasi;
 use App\Http\Controllers\ControllerFile;
 use App\Http\Controllers\ControllerInformasiUser;
+use App\Http\Controllers\ControllerKeySignature;
 use App\Http\Controllers\ControllerShare;
 use App\Http\Controllers\ControllerListKeySharing;
+use App\Http\Controllers\ControllerPenandatangan;
 use App\Http\Controllers\ControllerProfile;
 use App\Http\Controllers\ControllerShareFileUser;
 use App\Http\Controllers\ControllerShareInformasiUser;
+use App\Http\Controllers\ControllerVerifier;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -36,6 +39,31 @@ Route::group(['middleware' => [
         Route::get('/', [ControllerProfile::class, 'index'])->name('index');
         Route::get('/edit', [ControllerProfile::class, 'edit'])->name('edit');
         Route::patch('/', [ControllerProfile::class, 'update'])->name('update');
+    });
+
+    Route::group([
+        'prefix' => 'key',
+        'as' => 'key.',
+    ], function() {
+        Route::get('/', [ControllerKeySignature::class, 'index'])->name('index');
+        Route::get('/create', [ControllerKeySignature::class, 'create'])->name('create');
+        Route::post('/', [ControllerKeySignature::class, 'store'])->name('store');
+    });
+
+    Route::group([
+        'prefix' => 'penandatangan',
+        'as' => 'penandatangan.',
+    ], function() {
+        Route::get('/', [ControllerPenandatangan::class, 'index'])->name('index');
+        Route::post('/', [ControllerPenandatangan::class, 'store'])->name('store');
+    });
+
+    Route::group([
+        'prefix' => 'verifikasi',
+        'as' => 'verifikasi.',
+    ], function() {
+        Route::get('/', [ControllerVerifier::class, 'index'])->name('index');
+        Route::post('/', [ControllerVerifier::class, 'store'])->name('store');
     });
 
     Route::group([

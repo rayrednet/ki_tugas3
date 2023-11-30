@@ -3,10 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Helper\Encryptor;
+use App\Helper\PDF;
 use App\Http\Requests\Profile\RequestUpdateProfile;
 use App\Models\User;
 use Exception;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use phpseclib3\Crypt\Random;
 
 class ControllerProfile extends Controller
@@ -17,6 +19,18 @@ class ControllerProfile extends Controller
          * @var User
          */
         $user = Auth::user();
+
+        // $isiFileFisikEncrypted = Storage::disk('private')->get('files/tes.pdf');
+        // if ($isiFileFisikEncrypted === null) {
+        //     return redirect()->back();
+        // }
+
+        // $pdf = new PDF($isiFileFisikEncrypted);
+        // $sign = $pdf->putSignature($user);
+        // $designPDF = new PDF($sign);
+        // if ($designPDF->checkSignature($user)) {
+        //     return;
+        // }
 
         $profileUser = $user->profile;
         $profile = [];
@@ -32,7 +46,8 @@ class ControllerProfile extends Controller
             ];
 
             return view('profile.index', [
-                'profile' => $profile
+                'profile' => $profile,
+                'generate_key' => $user->checkNoKeySignature(),
             ]);
         }
 
@@ -60,7 +75,8 @@ class ControllerProfile extends Controller
         }
 
         return view('profile.index', [
-            'profile' => $profile
+            'profile' => $profile,
+            'generate_key' => $user->checkNoKeySignature(),
         ]);
     }
 

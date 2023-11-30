@@ -8,6 +8,7 @@ export default defineConfig({
                 'resources/sass/app.scss',
                 'resources/js/app.js',
                 'resources/js/sharingKey.js',
+                'resources/js/verify.js',
 
                 'node_modules/bootstrap/dist/js/bootstrap.js',
             ],

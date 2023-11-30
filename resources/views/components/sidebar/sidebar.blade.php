@@ -17,6 +17,11 @@
             </x-sidebar-item>
             <x-sidebar-item href="{{ route('share.file.index') }}" title="File User Lain" icon="share">
             </x-sidebar-item>
+            <br/><br/>
+            <x-sidebar-item href="{{ route('penandatangan.index') }}" title="Tandantangani PDF" icon="file-pdf">
+            </x-sidebar-item>
+            <x-sidebar-item href="{{ route('verifikasi.index') }}" title="Bank File" icon="info-square">
+            </x-sidebar-item>
         </ul>
         <div class="fixed bottom-0 w-full flex justify-center">
             <ul class="nav nav-pills flex-column mb-sm-auto mb-0 align-items-center align-items-sm-start" id="menu">

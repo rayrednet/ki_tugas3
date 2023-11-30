@@ -16,8 +16,10 @@ return new class extends Migration
             $table->string('username', 64);
             $table->string('password', 64);
             $table->string('key_public', 4096);
-            $table->string('key_private', 4096);
-            $table->string('key_enkripsi', 4096);
+            $table->text('key_private', 4096);
+            $table->text('key_enkripsi', 4096);
+            $table->text('digital_signature_public')->nullable();
+            $table->text('digital_signature_private')->nullable();
         });
     }
 
