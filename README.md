@@ -1,4 +1,4 @@
-## Assignment 2: Key Management
+## Assignment 3: Digital Signature
 
 **Group:** 3 <br />
 **Class:** Information Security (F)
