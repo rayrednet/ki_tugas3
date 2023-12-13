@@ -20,7 +20,7 @@
             <br/><br/>
             <x-sidebar-item href="{{ route('penandatangan.index') }}" title="Tandantangani PDF" icon="file-pdf">
             </x-sidebar-item>
-            <x-sidebar-item href="{{ route('verifikasi.index') }}" title="Bank File" icon="info-square">
+            <x-sidebar-item href="{{ route('verifikasi.index') }}" title="Cek Pemilik PDF" icon="info-square">
             </x-sidebar-item>
         </ul>
         <div class="fixed bottom-0 w-full flex justify-center">
